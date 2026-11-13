@@ -1,0 +1,17 @@
+# Базовые утилиты
+live-boot
+live-config
+sudo
+nano
+curl
+wget
+# Установщик (позже вы сможете заменить его на Calamares)
+debian-installer-launcher
+# Графическая оболочка (начните с минимальной, например, Xorg + Openbox, или сразу с KDE/GNOME)
+# Для примера, добавим Xorg и базовый рабочий стол
+xorg
+openbox
+lightdm
+# Ваши будущие приложения (пока оставьте закомментированными)
+# kaming-store
+# kaming-browser
