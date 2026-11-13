@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Устанавливаем имя дистрибутива и его версию
+lb config noauto \
+    --distribution bookworm \
+    --archive-areas "main contrib non-free non-free-firmware" \
+    --apt-indices false \
+    --apt-recommends false \
+    --debian-installer live \
+    --debian-installer-gui true \
+    --bootappend-live "boot=live components quiet splash" \
+    --iso-application "Kaming OS" \
+    --iso-publisher "Kaming OS Project" \
+    --iso-volume "KAMING_OS" \
+    --linux-flavours "amd64" \
+    --binary-images iso-hybrid \
+    --memtest none \
+    --win32-loader false \
+    --updates false \
+    --security false \
+    "${@}"
