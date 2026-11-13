@@ -1,0 +1,39 @@
+name: Build Kaming OS ISO
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Позволяет запускать сборку вручную с вкладки Actions
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+      options: --privileged # Требуется для live-build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install live-build and dependencies
+        run: |
+          apt-get update
+          apt-get install -y live-build git sudo curl wget
+
+      - name: Configure and Build ISO
+        run: |
+          cd build-config
+          # Делаем скрипт конфигурации исполняемым и запускаем его
+          chmod +x auto/config
+          sudo ./auto/config
+          # Запускаем сборку
+          sudo lb build
+
+      - name: Upload ISO as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaming-os-iso
+          path: build-config/*.iso
+          # Храним артефакт 7 дней (можно изменить)
+          retention-days: 7
