@@ -1,18 +1,28 @@
 #!/bin/sh
 set -e
 
-# Имя тестового администратора
-TEST_USER="testadmin"
+# Имя пользователя, для которого настраиваем автовход
+USERNAME="testadmin"
 
-# Создаем пользователя с домашней папкой и стандартным shell
-# Флаг -G sudo добавляет пользователя в группу администраторов
-useradd -m -s /bin/bash -G sudo $TEST_USER
+# 1. Настраиваем автовход для LightDM (стандартный экран входа Debian)
+if [ -d /etc/lightdm ]; then
+    mkdir -p /etc/lightdm/lightdm.conf.d
+    cat <<EOF > /etc/lightdm/lightdm.conf.d/50-autologin.conf
+[Seat:*]
+autologin-user=$USERNAME
+autologin-user-timeout=0
+EOF
+fi
 
-# Задаем пароль (неинтерактивно)
-# Пароль: KamingAdmin2024!
-echo "$TEST_USER:KamingAdmin2024!" | chpasswd
+# 2. Настраиваем автовход для GDM3 (если вы используете GNOME)
+if [ -d /etc/gdm3 ]; then
+    # Убираем комментарии и включаем автовход
+    sed -i "s/^#AutomaticLoginEnable.*/AutomaticLoginEnable = true/" /etc/gdm3/daemon.conf
+    sed -i "s/^#AutomaticLogin.*/AutomaticLogin = $USERNAME/" /etc/gdm3/daemon.conf
+fi
 
-# На всякий случай разблокируем аккаунт (если политики безопасности Debian заблокировали его)
-passwd -u $TEST_USER || true
+# 3. Разрешаем пользователю выполнять sudo без пароля (чтобы терминал не просил его)
+echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/90-testadmin-nopasswd
+chmod 0440 /etc/sudoers.d/90-testadmin-nopasswd
 
-echo "Тестовый администратор $TEST_USER успешно создан."
+echo "Автовход для $USERNAME успешно настроен."
