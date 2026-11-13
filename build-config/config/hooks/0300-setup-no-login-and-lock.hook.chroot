@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+USERNAME="testadmin"
+
+# 1. Включаем автовход (чтобы при старте сразу открывался рабочий стол)
+mkdir -p /etc/lightdm/lightdm.conf.d
+cat <<EOF > /etc/lightdm/lightdm.conf.d/50-autologin.conf
+[Seat:*]
+autologin-user=$USERNAME
+autologin-user-timeout=0
+EOF
+
+# 2. Настраиваем Light Locker (экран блокировки)
+# Включаем возможность блокировки по таймауту, но не при загрузке
+mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+cat <<EOF > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-session.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfce4-session" version="1.0">
+  <property name="general" type="empty">
+    <property name="LockCommand" type="string" value="light-locker-command -l"/>
+  </property>
+</channel>
+EOF
+
+# 3. Разрешаем sudo без пароля, чтобы не мешало при настройке
+echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/90-nopasswd
+chmod 0440 /etc/sudoers.d/90-nopasswd
+
+echo "Автовход и система блокировки настроены."
