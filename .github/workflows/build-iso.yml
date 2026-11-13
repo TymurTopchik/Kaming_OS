@@ -37,3 +37,15 @@ jobs:
           path: build-config/*.iso
           # Храним артефакт 7 дней (можно изменить)
           retention-days: 7
+
+      - name: Configure and Build ISO
+        run: |
+          cd build-config
+          chmod +x auto/config
+          
+          # Даем права на выполнение хукам
+          chmod +x config/hooks/0100-create-test-admin.hook.chroot 2>/dev/null || true
+          chmod +x config/hooks/0200-enable-autologin.hook.chroot 2>/dev/null || true
+          
+          sudo ./auto/config
+          sudo lb build
